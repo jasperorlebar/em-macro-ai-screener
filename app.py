@@ -95,16 +95,20 @@ overview_tab, regime_tab, country_tab, screener_tab, methodology_tab, limitation
 with overview_tab:
     st.header("Overview")
 
+    top_vulnerable = vulnerability_scores.iloc[0]
+    top_resilient = vulnerability_scores.iloc[-1]
+    top_trade_idea = trade_ideas.iloc[0]
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric("Latest Detected Regime", int(latest_regime["regime"]))
+        st.metric("Latest Detected Regime", latest_regime["regime_name"])
 
     with col2:
-        st.metric("Regime Label", latest_regime["regime_name"])
+        st.metric("Top Vulnerable FX", top_vulnerable["ccy"])
 
     with col3:
-        st.metric("EM Countries Covered", len(country_clusters))
+        st.metric("Top RV Idea", top_trade_idea["idea_type"])
 
     st.subheader("Latest Country Clusters")
 
