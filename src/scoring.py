@@ -21,21 +21,26 @@ def calculate_structural_vulnerability(country_data: pd.DataFrame) -> pd.DataFra
     Higher score = more vulnerable.
 
     This is a heuristic score, not a trained return-prediction model.
+    Incorporates real World Bank macro variables for EM-relevant assessment.
     """
     output = country_data.copy()
 
     output["inflation_score"] = min_max_scale(output["inflation"])
     output["debt_score"] = min_max_scale(output["government_debt_gdp"])
     output["current_account_score"] = min_max_scale(-output["current_account_gdp"])
+    output["external_debt_score"] = min_max_scale(output["external_debt_gni"])
+    output["reserves_weakness_score"] = min_max_scale(-output["reserves_gdp"])
     output["oil_importer_score_scaled"] = min_max_scale(output["oil_importer_score"])
     output["china_exposure_score_scaled"] = min_max_scale(output["china_exposure_score"])
 
     output["structural_vulnerability_score"] = (
-        0.25 * output["inflation_score"]
-        + 0.25 * output["debt_score"]
+        0.20 * output["inflation_score"]
+        + 0.20 * output["debt_score"]
         + 0.20 * output["current_account_score"]
-        + 0.15 * output["oil_importer_score_scaled"]
-        + 0.15 * output["china_exposure_score_scaled"]
+        + 0.15 * output["external_debt_score"]
+        + 0.10 * output["reserves_weakness_score"]
+        + 0.075 * output["oil_importer_score_scaled"]
+        + 0.075 * output["china_exposure_score_scaled"]
     )
 
     return output
