@@ -10,6 +10,8 @@ REGIME_DATA_PATH = Path("data/processed/regime_data.csv")
 COUNTRY_CLUSTERS_PATH = Path("data/processed/country_clusters.csv")
 VULNERABILITY_SCORES_PATH = Path("data/processed/vulnerability_scores.csv")
 TRADE_IDEAS_PATH = Path("data/processed/trade_ideas.csv")
+NEWS_SCORES_PATH = Path("data/processed/news_risk_scores.csv")
+CLASSIFIED_NEWS_PATH = Path("data/processed/classified_news.csv")
 
 
 st.set_page_config(
@@ -18,7 +20,7 @@ st.set_page_config(
 )
 
 
-def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load generated project datasets.
     """
@@ -30,6 +32,8 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame,
         COUNTRY_CLUSTERS_PATH,
         VULNERABILITY_SCORES_PATH,
         TRADE_IDEAS_PATH,
+        NEWS_SCORES_PATH,
+        CLASSIFIED_NEWS_PATH,
     ]:
         if not path.exists():
             missing_files.append(str(path))
@@ -50,8 +54,10 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame,
     country_clusters = pd.read_csv(COUNTRY_CLUSTERS_PATH)
     vulnerability_scores = pd.read_csv(VULNERABILITY_SCORES_PATH)
     trade_ideas = pd.read_csv(TRADE_IDEAS_PATH)
+    news_scores = pd.read_csv(NEWS_SCORES_PATH)
+    classified_news = pd.read_csv(CLASSIFIED_NEWS_PATH)
 
-    return market_data, regime_data, country_clusters, vulnerability_scores, trade_ideas
+    return market_data, regime_data, country_clusters, vulnerability_scores, trade_ideas, news_scores, classified_news
 
 
 def index_to_100(df: pd.DataFrame) -> pd.DataFrame:
@@ -62,7 +68,7 @@ def index_to_100(df: pd.DataFrame) -> pd.DataFrame:
     return clean / clean.iloc[0] * 100
 
 
-market_data, regime_data, country_clusters, vulnerability_scores, trade_ideas = load_data()
+market_data, regime_data, country_clusters, vulnerability_scores, trade_ideas, news_scores, classified_news = load_data()
 
 latest_regime = regime_data[["regime", "regime_name"]].iloc[-1]
 
@@ -80,12 +86,13 @@ st.markdown(
 )
 
 
-overview_tab, regime_tab, country_tab, screener_tab, methodology_tab, limitations_tab = st.tabs(
+overview_tab, regime_tab, country_tab, screener_tab, news_tab, methodology_tab, limitations_tab = st.tabs(
     [
         "Overview",
         "Market Regime",
         "Country Clusters",
         "Vulnerability Screener",
+        "News Risk Classification",
         "Methodology",
         "Limitations",
     ]
@@ -318,6 +325,27 @@ with screener_tab:
         trade_ideas,
         use_container_width=True,
     )
+
+
+with news_tab:
+    st.header("News Risk Classification")
+
+    st.markdown(
+        """
+        This section classifies headlines into macro risk themes. The current version
+        uses a transparent keyword classifier. A later version can upgrade this to
+        a zero-shot NLP model.
+        """
+    )
+
+    st.subheader("Country News Risk Scores")
+    st.dataframe(news_scores, use_container_width=True)
+
+    st.subheader("Classified Headlines")
+    st.dataframe(classified_news, use_container_width=True)
+
+    st.subheader("News Risk by Currency")
+    st.bar_chart(news_scores.set_index("ccy")["news_risk_score"])
 
 
 with methodology_tab:

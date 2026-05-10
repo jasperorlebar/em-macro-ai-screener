@@ -116,6 +116,49 @@ def calculate_regime_adjusted_vulnerability(
     return output.sort_values("final_vulnerability_score", ascending=False)
 
 
+def incorporate_news_risk(
+    scored: pd.DataFrame,
+    news_scores: pd.DataFrame,
+    news_weight: float = 0.15,
+) -> pd.DataFrame:
+    """
+    Incorporate news risk scores into the final vulnerability score.
+
+    final_vulnerability_score = (1 - news_weight) * current_score + news_weight * news_risk_score
+
+    This makes the screener dynamic: countries become more vulnerable not only from
+    static macro data, but from deteriorating news flow.
+    """
+    output = scored.copy()
+
+    # Merge news scores on country/ccy
+    output = output.merge(
+        news_scores[["country", "ccy", "news_risk_score"]],
+        on=["country", "ccy"],
+        how="left",
+    )
+
+    # Fill missing news scores with 0 (neutral news)
+    output["news_risk_score"] = output["news_risk_score"].fillna(0.0)
+
+    # Normalize news_risk_score to 0-100 scale if needed
+    if output["news_risk_score"].max() > 100:
+        output["news_risk_score"] = min_max_scale(output["news_risk_score"])
+
+    # Calculate blended score
+    output["final_vulnerability_score"] = (
+        (1 - news_weight) * output["final_vulnerability_score"]
+        + news_weight * output["news_risk_score"]
+    )
+
+    output["final_vulnerability_score"] = output["final_vulnerability_score"].clip(
+        lower=0,
+        upper=100,
+    )
+
+    return output.sort_values("final_vulnerability_score", ascending=False)
+
+
 def generate_relative_value_ideas(scored: pd.DataFrame, n_ideas: int = 3) -> pd.DataFrame:
     """
     Generate relative-value trade ideas based on vulnerability scores.
