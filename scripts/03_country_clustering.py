@@ -6,7 +6,7 @@ import pandas as pd
 from src.country_clustering import fit_country_clustering, save_country_clusters
 
 
-INPUT_PATH = Path("data/inputs/country_macro_toy.csv")
+INPUT_PATH = Path("data/processed/country_macro_real.csv")
 OUTPUT_PATH = Path("data/processed/country_clusters.csv")
 FIGURE_PATH = Path("reports/figures/country_clusters.png")
 
@@ -16,6 +16,8 @@ FEATURES = [
     "current_account_gdp",
     "government_debt_gdp",
     "gdp_growth",
+    "external_debt_gni",
+    "reserves_gdp",
     "commodity_score",
     "oil_importer_score",
     "china_exposure_score",
@@ -26,6 +28,19 @@ def main() -> None:
     print("Loading country macro data...")
 
     macro_data = pd.read_csv(INPUT_PATH)
+
+    print("\nMissing values before imputation:")
+    print(macro_data[FEATURES].isna().sum())
+
+    for col in FEATURES:
+        macro_data[col] = pd.to_numeric(macro_data[col], errors="coerce")
+
+    macro_data[FEATURES] = macro_data[FEATURES].fillna(
+        macro_data[FEATURES].median()
+    )
+
+    print("\nMissing values after imputation:")
+    print(macro_data[FEATURES].isna().sum())
 
     print("Fitting country clustering model...")
 
