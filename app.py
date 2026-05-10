@@ -128,8 +128,9 @@ with overview_tab:
     )
 
     st.info(
-        "Current country macro data is toy/placeholder data used to test the project pipeline. "
-        "A later version will replace this with sourced World Bank/IMF data."
+        "The country macro data now uses World Bank indicators for core macro variables. "
+        "Commodity, oil-importer and China-exposure variables remain manually constructed exposure scores "
+        "and are documented separately."
     )
 
 
@@ -181,9 +182,9 @@ with country_tab:
 
     st.markdown(
         """
-        The country model uses macro vulnerability indicators to group EM countries.
-        The current version uses toy data, but the structure is designed so that real
-        sourced macro data can replace it later.
+        The country model uses World Bank macro indicators and exposure scores to group EM countries 
+        by vulnerability. Data sources are documented with each observation so you can trace 
+        where values come from.
         """
     )
 
@@ -217,7 +218,31 @@ with country_tab:
 
     st.subheader("Country Macro Dataset")
 
-    st.dataframe(country_clusters, use_container_width=True)
+    st.dataframe(
+        country_clusters[
+            [
+                "country",
+                "ccy",
+                "cluster",
+                "inflation",
+                "inflation_year",
+                "current_account_gdp",
+                "current_account_gdp_year",
+                "government_debt_gdp",
+                "government_debt_gdp_year",
+                "external_debt_gni",
+                "external_debt_gni_year",
+                "reserves_gdp",
+                "reserves_gdp_year",
+                "gdp_growth",
+                "gdp_growth_year",
+                "commodity_score",
+                "oil_importer_score",
+                "china_exposure_score",
+            ]
+        ],
+        use_container_width=True,
+    )
 
 
 with screener_tab:
@@ -340,7 +365,6 @@ with limitations_tab:
 
     st.markdown(
         """
-        - Country macro data is currently toy/placeholder data.
         - Free market data is not institutional quality.
         - Regime labels currently require manual interpretation.
         - No transaction cost or liquidity modelling is included.
