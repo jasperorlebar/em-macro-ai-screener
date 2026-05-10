@@ -8,8 +8,9 @@ PIPELINE_STEPS = [
     "scripts/02_regime_detection.py",
     "scripts/00_download_macro_data.py",
     "scripts/03_country_clustering.py",
-    "scripts/04_vulnerability_scoring.py",
+    "scripts/06_download_news.py",
     "scripts/05_news_classification.py",
+    "scripts/04_vulnerability_scoring.py",
 ]
 
 

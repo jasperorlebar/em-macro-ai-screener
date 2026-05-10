@@ -338,11 +338,35 @@ with news_tab:
         """
     )
 
+    st.info(
+        "News headlines are pulled from GDELT when the pipeline is run. "
+        "If real news data is unavailable, the classifier can fall back to the sample headline file."
+    )
+
     st.subheader("Country News Risk Scores")
     st.dataframe(news_scores, use_container_width=True)
 
     st.subheader("Classified Headlines")
-    st.dataframe(classified_news, use_container_width=True)
+
+    headline_cols = [
+        "date",
+        "country",
+        "ccy",
+        "headline",
+        "news_theme",
+        "headline_risk_score",
+    ]
+
+    optional_cols = ["domain", "source_country", "url"]
+
+    for col in optional_cols:
+        if col in classified_news.columns:
+            headline_cols.append(col)
+
+    st.dataframe(
+        classified_news[headline_cols],
+        use_container_width=True,
+    )
 
     st.subheader("News Risk by Currency")
     st.bar_chart(news_scores.set_index("ccy")["news_risk_score"])
