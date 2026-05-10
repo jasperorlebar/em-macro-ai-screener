@@ -3,10 +3,20 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 
+# Environment variables / secrets
+.env
+
+# Downloaded/generated data
 data/raw/
 data/processed/
 data/outputs/
 
-.env
-*.csv
+# Keep manual input data
+!data/inputs/
+!data/inputs/*.csv
+
+# Keep figures for the portfolio README
+!reports/figures/
+!reports/figures/*.png
+
 *.xlsx
